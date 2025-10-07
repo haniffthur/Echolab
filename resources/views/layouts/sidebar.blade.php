@@ -5,7 +5,7 @@
         <div class="sidebar-brand-icon text-primary">
             <i class="fas fa-building fa-2x"></i>
         </div>
-        <div class="sidebar-brand-text mx-2">VMS</div>
+        <div class="sidebar-brand-text mx-2">ECHOLAB VMS</div>
     </a>
 
     <!-- Nav Item - Dashboard -->

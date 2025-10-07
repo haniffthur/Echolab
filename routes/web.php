@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MonitorController;
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,10 +38,11 @@ Route::middleware('guest')->group(function () {
 // Grup untuk route yang wajib login (terproteksi)
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('logout', [LoginController::class, 'logout'])->name('logout');
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('gates', GateController::class); // <--- TAMBAHKAN BARIS INI
     Route::resource('employees', EmployeeController::class);
     Route::resource('cards', CardController::class);
     Route::get('access-logs', [AccessLogController::class, 'index'])->name('access-logs.index'); // <--- TAMBAHKAN BARIS INI
+        Route::get('access-logs/export', [AccessLogController::class, 'export'])->name('access-logs.export');
     Route::resource('users', UserController::class);
 });

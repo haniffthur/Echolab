@@ -4,185 +4,130 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Live Activity Monitor - VMS</title>
+    <title>Live Building Monitor - VMS</title>
 
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
     
     <style>
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Inter', sans-serif;
-        }
-        .main-header {
-            padding: 2rem 0;
-        }
-        .main-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #3a3b45;
-        }
-        .digital-clock {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #5a5c69;
-        }
-        .digital-date {
-            font-size: 1rem;
-            color: #858796;
-        }
-        .stat-card .card-body {
-            padding: 1.5rem;
-        }
-        .table-monitor thead th {
-            border: none;
-            background-color: #f8f9fc;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.8px;
-            color: #212529; /* Warna Hitam untuk Header */
-            font-weight: 700; /* Bold */
-            padding: 1rem 1.5rem;
-        }
-        .table-monitor tbody tr {
-            border-bottom: 1px solid #eaecf4;
-            animation: fadeIn 0.4s ease-in-out;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .table-monitor tbody tr:last-child {
-            border-bottom: none;
-        }
-        .table-monitor td {
-            vertical-align: middle;
-            padding: 1.25rem 1.5rem;
-            border: none;
-            font-weight: 500;
-            color: #5a5c69;
-        }
-        .table-monitor .time-column {
-            font-weight: 600;
-            color: #3a3b45;
-        }
-        .card-table-container {
-            height: calc(100vh - 400px); /* Disesuaikan tingginya */
-            min-height: 400px;
-            overflow-y: auto;
-        }
-        .status-badge {
-            font-size: 0.8rem; /* Ukuran font badge dibesarkan */
-            padding: 0.5em 0.75em;
-            font-weight: 600;
-        }
+        body { background-color: #f8f9fc; font-family: 'Inter', sans-serif; overflow-y: hidden; }
+        .header-section { border-bottom: 1px solid #e3e6f0; }
+        .main-title { font-weight: 700; color: #3a3b45; }
+        .clock-display .time { font-size: 2rem; font-weight: 700; color: #3a3b45; }
+        .clock-display .date { font-size: 0.9rem; color: #858796; }
+        .stat-display .label { text-transform: uppercase; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; }
+        .stat-display .count { font-size: 2rem; font-weight: 700; line-height: 1; }
+        .feed-container { height: calc(100vh - 120px); overflow-y: auto; }
+        .feed-header { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 1rem; border-bottom: 2px solid; }
+        .feed-list .list-group-item { background-color: #fff; border: 1px solid #e3e6f0; border-radius: 0.5rem; margin-bottom: 10px; animation: popIn 0.5s ease-out; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .avatar-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .avatar-employee { background-color: #e8edff; color: #4e73df; }
+        .avatar-guest { background-color: #e2f7f0; color: #1cc88a; }
+        .person-name { font-size: 1rem; color: #3a3b45; font-weight: 600; }
+        .person-detail { font-size: 0.8rem; }
+        .time-display { font-size: 0.9rem; font-weight: 600; }
+        .feed-container::-webkit-scrollbar { width: 8px; }
+        .feed-container::-webkit-scrollbar-track { background: transparent; }
+        .feed-container::-webkit-scrollbar-thumb { background: #d1d3e2; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div class="container-fluid pt-4">
+    <div class="container-fluid vh-100 d-flex flex-column p-4">
 
-        <!-- Header: Title & Clock -->
-        <div class="main-header text-center">
-            <h1 class="main-title">Live Activity Monitor</h1>
-            <div id="clock" class="digital-clock"></div>
-            <div id="date" class="digital-date"></div>
-        </div>
-
-        <!-- Row: Stat Cards -->
-        <div class="row mb-4">
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-left-info shadow-sm h-100 stat-card">
-                    <div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-m font-weight-bold text-info text-uppercase mb-1">Total Inside</div><div id="total-count" class="h4 mb-0 font-weight-bold text-gray-800">0</div></div><div class="col-auto"><i class="fas fa-building fa-2x text-gray-300"></i></div></div></div>
+        <!-- Header: Judul, Statistik, dan Jam -->
+        <header class="header-section pb-3 mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <h2 class="main-title m-0"><i class="fas fa-desktop mr-2"></i>Live Monitor</h2>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col stat-display text-center"><div class="label text-primary">Karyawan</div><div id="employee-count" class="count text-primary">0</div></div>
+                        <div class="col stat-display text-center"><div class="label text-success">Tamu</div><div id="guest-count" class="count text-success">0</div></div>
+                        <div class="col stat-display text-center"><div class="label text-info">Total</div><div id="total-count" class="count text-info">0</div></div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-right clock-display">
+                    <div id="clock" class="time"></div>
+                    <div id="date" class="date"></div>
                 </div>
             </div>
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-left-primary shadow-sm h-100 stat-card">
-                    <div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-m font-weight-bold text-primary text-uppercase mb-1">Employees Inside</div><div id="employee-count" class="h4 mb-0 font-weight-bold text-gray-800">0</div></div><div class="col-auto"><i class="fas fa-users fa-2x text-gray-300"></i></div></div></div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-left-success shadow-sm h-100 stat-card">
-                    <div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-m font-weight-bold text-success text-uppercase mb-1">Guests Inside</div><div id="guest-count" class="h4 mb-0 font-weight-bold text-gray-800">0</div></div><div class="col-auto"><i class="fas fa-user-tie fa-2x text-gray-300"></i></div></div></div>
-                </div>
-            </div>
-        </div>
+        </header>
 
-        <!-- Monitor Table -->
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
-                <div class="table-responsive card-table-container">
-                    <table class="table table-hover table-monitor mb-0" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th class="pl-4" style="width: 5%;">No</th>
-                                <th style="width: 20%;">Date & Time</th>
-                                <th>Name</th>
-                                <th>Card Number</th>
-                                <th>Gate</th>
-                                <th class="pr-4 text-center" style="width: 10%;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="monitor-table-body">
-                            <tr><td colspan="6" class="text-center py-5 text-gray-500">Loading data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        <!-- Konten: Dua Kolom -->
+        <div class="row flex-grow-1" style="min-height: 0;">
+            <!-- Kolom Kiri: Karyawan -->
+            <div class="col-md-6 d-flex flex-column">
+                <h4 class="feed-header border-primary">Karyawan di Dalam</h4>
+                <div class="feed-container pr-3"><ul class="list-group list-group-flush" id="employee-feed-body"><li class="list-group-item text-center text-gray-500 py-5">Memuat data...</li></ul></div>
+            </div>
+            <!-- Kolom Kanan: Tamu -->
+            <div class="col-md-6 d-flex flex-column">
+                <h4 class="feed-header border-success">Tamu di Dalam</h4>
+                 <div class="feed-container pr-3"><ul class="list-group list-group-flush" id="guest-feed-body"><li class="list-group-item text-center text-gray-500 py-5">Memuat data...</li></ul></div>
             </div>
         </div>
     </div>
 
     <script>
-        function updateStats(data) {
-            document.getElementById('total-count').innerText = data.totalInsideCount;
+        function updateMonitorUI(data) {
             document.getElementById('employee-count').innerText = data.employeeInsideCount;
             document.getElementById('guest-count').innerText = data.guestInsideCount;
-        }
+            document.getElementById('total-count').innerText = data.totalInsideCount;
+            const employeeBody = document.getElementById('employee-feed-body');
+            const guestBody = document.getElementById('guest-feed-body');
 
-        function updateActivityTable(data) {
-            const monitorBody = document.getElementById('monitor-table-body');
-            let newHtml = '';
-            let counter = 1;
-
-            if (data && data.length > 0) {
-                data.forEach(log => {
-                    let statusHtml = log.type === 'in'
-                        ? '<span class="badge badge-success status-badge"><i class="fas fa-arrow-down mr-1"></i>In</span>'
-                        : '<span class="badge badge-danger status-badge"><i class="fas fa-arrow-up mr-1"></i>Out</span>';
-
-                    newHtml += `
-                        <tr>
-                            <td class="pl-4 font-weight-bold text-gray-500">${String(counter++).padStart(2, '0')}</td>
-                            <td class="time-column">${log.time}</td>
-                            <td>${log.user_name}</td>
-                            <td class="text-muted">${log.card_no}</td>
-                            <td>${log.gate_name}</td>
-                            <td class="pr-4 text-center">${statusHtml}</td>
-                        </tr>`;
+            let employeeHtml = '';
+            if (data.employeesInside.length > 0) {
+                data.employeesInside.forEach(p => {
+                    employeeHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle avatar-employee mr-3"><i class="${p.icon}"></i></div>
+                            <div>
+                                <div class="person-name">${p.name}</div>
+                                <div class="small text-gray-500 person-detail">${p.detail} <span class="mx-1">&bull;</span> <i class="fas fa-door-open fa-xs mr-1"></i> ${p.gate_name}</div>
+                            </div>
+                        </div>
+                        <div class="text-right"><div class="font-weight-bold text-gray-800 time-display"><i class="far fa-clock mr-1"></i>${p.time_in}</div></div>
+                    </li>`;
                 });
-            } else {
-                newHtml = '<tr><td colspan="6" class="text-center py-5 text-gray-500">No tap activity recorded yet.</td></tr>';
-            }
+            } else { employeeHtml = '<li class="list-group-item text-center text-gray-500 py-5">Tidak ada karyawan di dalam.</li>'; }
             
-            if (monitorBody.innerHTML !== newHtml) {
-                monitorBody.innerHTML = newHtml;
-            }
+            let guestHtml = '';
+            if (data.guestsInside.length > 0) {
+                data.guestsInside.forEach(p => {
+                    guestHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle avatar-guest mr-3"><i class="${p.icon}"></i></div>
+                            <div>
+                                <div class="person-name">${p.name}</div>
+                                <div class="small text-gray-500 person-detail">${p.detail} <span class="mx-1">&bull;</span> <i class="fas fa-door-open fa-xs mr-1"></i> ${p.gate_name}</div>
+                            </div>
+                        </div>
+                        <div class="text-right"><div class="font-weight-bold text-gray-800 time-display"><i class="far fa-clock mr-1"></i>${p.time_in}</div></div>
+                    </li>`;
+                });
+            } else { guestHtml = '<li class="list-group-item text-center text-gray-500 py-5">Tidak ada tamu di dalam.</li>'; }
+            
+            if (employeeBody.innerHTML !== employeeHtml) { employeeBody.innerHTML = employeeHtml; }
+            if (guestBody.innerHTML !== guestHtml) { guestBody.innerHTML = guestHtml; }
         }
         
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('date').innerText = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('date').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         }
 
         function refreshData() {
-            fetch("{{ route('api.dashboard.data') }}").then(r => r.json()).then(updateStats);
-            fetch("{{ route('api.access-logs.data') }}").then(r => r.json()).then(updateActivityTable);
+            fetch("{{ route('api.dashboard.data') }}").then(response => response.json()).then(data => updateMonitorUI(data));
         }
 
-        document.addEventListener('DOMContentLoaded', refreshData);
-        setInterval(refreshData, 1000);
+        document.addEventListener('DOMContentLoaded', function() { refreshData(); updateClock(); });
+        setInterval(refreshData, 3000);
         setInterval(updateClock, 1000);
     </script>
 </body>
 </html>
-

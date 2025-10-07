@@ -4,17 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\AccessLog;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AccessLogExport;
 
 class AccessLogController extends Controller
 {
     // Method index() yang sudah ada, biarkan saja
-    public function index()
+  public function index(Request $request)
     {
-        $accessLogs = AccessLog::with(['gate', 'card', 'userable'])
-                                ->latest('tap_time')
-                                ->paginate(15);
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
-        return view('access-logs.index', compact('accessLogs'));
+        $query = AccessLog::with(['gate', 'card', 'userable'])->latest('tap_time');
+
+        if ($startDate && $endDate) {
+            // Pastikan format tanggal benar dan tambahkan waktu
+            $start = date('Y-m-d 00:00:00', strtotime($startDate));
+            $end = date('Y-m-d 23:59:59', strtotime($endDate));
+            $query->whereBetween('tap_time', [$start, $end]);
+        }
+
+        $accessLogs = $query->paginate(25)->appends($request->query());
+
+        return view('access-logs.index', compact('accessLogs', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Menangani proses ekspor ke Excel.
+     */
+    public function export(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        
+        $filename = 'laporan-log-pintu_' . now()->format('d-m-Y') . '.xlsx';
+
+        return Excel::download(new AccessLogExport($startDate, $endDate), $filename);
     }
 
     // METHOD BARU UNTUK API

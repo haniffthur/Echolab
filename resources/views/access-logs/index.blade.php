@@ -1,16 +1,40 @@
 @extends('layouts.app')
 
-@section('content')
-<h1 class="h3 mb-4 text-gray-800">Laporan Log Tap Pintu (Real-time)</h1>
+@push('styles')
+{{-- Library untuk date picker --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endpush
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+@section('content')
+<h1 class="h3 mb-4 text-gray-800">Laporan Log Tap Pintu</h1>
+
+<!-- Form Filter -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form action="{{ route('access-logs.index') }}" method="GET" class="form-inline">
+            <div class="form-group mb-2 mr-sm-2">
+                <label for="start_date" class="sr-only">Tanggal Mulai</label>
+                <input type="text" class="form-control" id="start_date" name="start_date" placeholder="Tanggal Mulai" value="{{ $startDate ?? '' }}">
+            </div>
+            <div class="form-group mb-2 mr-sm-2">
+                <label for="end_date" class="sr-only">Tanggal Selesai</label>
+                <input type="text" class="form-control" id="end_date" name="end_date" placeholder="Tanggal Selesai" value="{{ $endDate ?? '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary mb-2 mr-2"><i class="fas fa-filter mr-1"></i> Filter</button>
+            <a href="{{ route('access-logs.index') }}" class="btn btn-secondary mb-2">Reset</a>
+        </form>
+    </div>
+</div>
+
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white border-0 py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 font-weight-bold text-primary">Riwayat Aktivitas Pintu</h6>
-        <div class="text-xs">
-            <span class="mr-2">
-                <i class="fas fa-circle text-gray-500"></i> Auto-refresh setiap 10 detik
-            </span>
-        </div>
+        
+        {{-- Tombol Ekspor --}}
+        <a href="{{ route('access-logs.export', request()->query()) }}" class="btn btn-sm btn-success shadow-sm">
+            <i class="fas fa-file-excel fa-sm text-white-50"></i> Ekspor ke Excel
+        </a>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -22,61 +46,51 @@
                         <th>NIP</th>
                         <th>Nomor Kartu</th>
                         <th>Gate</th>
-                        <th>Tipe</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
-                {{-- Beri ID agar bisa dimanipulasi JavaScript --}}
-                <tbody id="log-table-body">
-                    {{-- Konten awal akan diisi oleh AJAX --}}
-                    <tr>
-                        <td colspan="6" class="text-center">Memuat data...</td>
-                    </tr>
+                <tbody>
+                    @forelse ($accessLogs as $log)
+                        <tr>
+                            <td>{{ $log->tap_time->format('d M Y, H:i:s') }}</td>
+                            <td>{{ $log->userable->name ?? 'Tamu' }}</td>
+                            <td>{{ $log->userable->employee_id ?? '-' }}</td>
+                            <td>{{ $log->card->cardno ?? 'N/A' }}</td>
+                            <td>{{ $log->gate->name ?? 'N/A' }}</td>
+                            <td>
+                                @if($log->type == 'in')
+                                    <span class="badge badge-success">Masuk</span>
+                                @else
+                                    <span class="badge badge-danger">Keluar</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center">Tidak ada data yang ditemukan.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-        {{-- Kita hapus paginasi karena sekarang datanya real-time --}}
+        
+        {{-- Paginasi yang mendukung filter --}}
+        <div class="d-flex justify-content-end">
+            {{ $accessLogs->links() }}
+        </div>
     </div>
 </div>
 @endsection
 
 @push('scripts')
+{{-- Skrip untuk date picker --}}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    function refreshLogTable() {
-        fetch("{{ route('api.access-logs.data') }}")
-            .then(response => response.json())
-            .then(data => {
-                const logBody = document.getElementById('log-table-body');
-                logBody.innerHTML = ''; // Kosongkan tabel
-
-                if (data.length > 0) {
-                    data.forEach(log => {
-                        let typeBadge = log.type === 'in'
-                            ? '<span class="badge badge-success">Masuk</span>'
-                            : '<span class="badge badge-danger">Keluar</span>';
-
-                        let row = `<tr>
-                            <td>${log.time}</td>
-                            <td>${log.user_name}</td>
-                            <td>${log.user_nip}</td>
-                            <td>${log.card_no}</td>
-                            <td>${log.gate_name}</td>
-                            <td>${typeBadge}</td>
-                        </tr>`;
-                        logBody.innerHTML += row;
-                    });
-                } else {
-                    logBody.innerHTML = '<tr><td colspan="6" class="text-center">Belum ada aktivitas tap yang terekam.</td></tr>';
-                }
-            })
-            .catch(error => console.error('Error fetching log data:', error));
-    }
-
-    // Panggil fungsi pertama kali saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', function() {
-        refreshLogTable();
+    flatpickr("#start_date", {
+        dateFormat: "Y-m-d",
     });
-
-    // Jalankan fungsi refresh setiap 10 detik
-    setInterval(refreshLogTable, 1000);
+    flatpickr("#end_date", {
+        dateFormat: "Y-m-d",
+    });
 </script>
 @endpush
