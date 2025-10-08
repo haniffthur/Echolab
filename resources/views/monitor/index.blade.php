@@ -7,11 +7,17 @@
     <title>Live Building Monitor - VMS</title>
 
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {{-- BARIS INI DIHAPUS untuk memastikan 100% offline --}}
+    {{-- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"> --}}
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
     
     <style>
-        body { background-color: #f8f9fc; font-family: 'Inter', sans-serif; overflow-y: hidden; }
+        body { 
+            background-color: #f8f9fc; 
+            /* PERUBAHAN: Menggunakan font default SB Admin 2 */
+            font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            overflow-y: hidden; 
+        }
         .header-section { border-bottom: 1px solid #e3e6f0; }
         .main-title { font-weight: 700; color: #3a3b45; }
         .clock-display .time { font-size: 2rem; font-weight: 700; color: #3a3b45; }
@@ -82,32 +88,14 @@
             let employeeHtml = '';
             if (data.employeesInside.length > 0) {
                 data.employeesInside.forEach(p => {
-                    employeeHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-circle avatar-employee mr-3"><i class="${p.icon}"></i></div>
-                            <div>
-                                <div class="person-name">${p.name}</div>
-                                <div class="small text-gray-500 person-detail">${p.detail} <span class="mx-1">&bull;</span> <i class="fas fa-door-open fa-xs mr-1"></i> ${p.gate_name}</div>
-                            </div>
-                        </div>
-                        <div class="text-right"><div class="font-weight-bold text-gray-800 time-display"><i class="far fa-clock mr-1"></i>${p.time_in}</div></div>
-                    </li>`;
+                    employeeHtml += `<li class="list-group-item d-flex justify-content-between align-items-center"><div class="d-flex align-items-center"><div class="avatar-circle avatar-employee mr-3"><i class="${p.icon}"></i></div><div><div class="person-name">${p.name}</div><div class="small text-gray-500 person-detail">${p.detail} <span class="mx-1">&bull;</span> <i class="fas fa-door-open fa-xs mr-1"></i> ${p.gate_name}</div></div></div><div class="text-right"><div class="font-weight-bold text-gray-800 time-display"><i class="far fa-clock mr-1"></i>${p.time_in}</div></div></li>`;
                 });
             } else { employeeHtml = '<li class="list-group-item text-center text-gray-500 py-5">Tidak ada karyawan di dalam.</li>'; }
             
             let guestHtml = '';
             if (data.guestsInside.length > 0) {
                 data.guestsInside.forEach(p => {
-                    guestHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-circle avatar-guest mr-3"><i class="${p.icon}"></i></div>
-                            <div>
-                                <div class="person-name">${p.name}</div>
-                                <div class="small text-gray-500 person-detail">${p.detail} <span class="mx-1">&bull;</span> <i class="fas fa-door-open fa-xs mr-1"></i> ${p.gate_name}</div>
-                            </div>
-                        </div>
-                        <div class="text-right"><div class="font-weight-bold text-gray-800 time-display"><i class="far fa-clock mr-1"></i>${p.time_in}</div></div>
-                    </li>`;
+                    guestHtml += `<li class="list-group-item d-flex justify-content-between align-items-center"><div class="d-flex align-items-center"><div class="avatar-circle avatar-guest mr-3"><i class="${p.icon}"></i></div><div><div class="person-name">${p.name}</div><div class="small text-gray-500 person-detail">${p.detail} <span class="mx-1">&bull;</span> <i class="fas fa-door-open fa-xs mr-1"></i> ${p.gate_name}</div></div></div><div class="text-right"><div class="font-weight-bold text-gray-800 time-display"><i class="far fa-clock mr-1"></i>${p.time_in}</div></div></li>`;
                 });
             } else { guestHtml = '<li class="list-group-item text-center text-gray-500 py-5">Tidak ada tamu di dalam.</li>'; }
             
@@ -131,3 +119,4 @@
     </script>
 </body>
 </html>
+
